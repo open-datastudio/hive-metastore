@@ -1,0 +1,6 @@
+apiVersion: beta/v1
+build:
+  skaffold: {}
+ingress:
+- serviceName: hive-metastore
+  port: 9083

@@ -1,0 +1,88 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hive-metastore-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: hive-metastore
+  template:
+    metadata:
+      labels:
+        app: hive-metastore
+    spec:
+#      initContainers:
+#      - name: db-user-create
+#        image: mariadb:10.5.3
+#        command: ["sh", "-c", "/initscript/init-db-user.sh"]
+#        volumeMounts:
+#        - name: init-db-user-volume
+#          mountPath: /initscript
+      containers:
+      - name: hive-metastore
+        image: hive
+        command: ["bin/hive"]
+        args: ["--service", "metastore"]
+#      volumes:
+#      - name: init-db-user-volume
+#        secret:
+#          secretName: init-db-user
+#          defaultMode: 0700
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: hive-metastore-service
+spec:
+  ports:
+  - name: thrift
+    port: 9083
+  selector:
+    app: hive-metastore
+---
+kind: Secret
+apiVersion: v1
+metadata:
+  name: init-db-user
+stringData:
+  init-db-user.sh: |
+    #!/bin/bas
+
+    HIVE_USER=hive
+    HIVE_PW=hive
+    ROOT_PW=rootpw
+    DB_HOST=mariadb-service
+
+    # db may take some time to spin up. wait for connection established
+    COUNT=20
+    while [ $COUNT -gt 0 ]; do
+      echo "" | mysql -root -p${ROOT_PW} -h $DB_HOST
+      if [ $? -eq 0 ]; then
+        break
+      fi
+      sleep 3
+      let "COUNT-=1"
+    done
+    if [ $COUNT -eq 0 ]; then
+      echo "mysql connection failed"
+      exit 1
+    fi
+
+    # check if user already exists
+    echo "USE mysql; \
+          SELECT User FROM user WHERE User='$HIVE_USER';" \
+          | mysql -uroot -p${ROOT_PW} -h $DB_HOST | grep $HIVE_USER > /dev/null
+    if [ $? -eq 0 ]; then
+      # hive user already exists
+      exit 0
+    fi
+
+    # create user and database
+    echo "USE mysql; \
+          CREATE USER 'hive'@'%' IDENTIFIED BY '$HIVE_PW'; \
+          GRANT ALL PRIVILEGES ON hive.* TO 'hive'@'%'; \
+          CREATE DATABASE hive; \
+          FLUSH PRIVILEGES;" \
+          | mysql -uroot -p${ROOT_PW} -h $DB_HOST
+         

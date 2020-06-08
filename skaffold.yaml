@@ -1,0 +1,21 @@
+apiVersion: skaffold/v2beta1
+kind: Config
+build:
+  artifacts:
+  - image: hive
+    context: .
+    docker:
+      dockerfile: Dockerfile
+deploy:
+  kubectl:
+    manifests:
+    - k8s-postgres.yaml
+    - k8s-hive.yaml
+profiles:
+- name: minikube
+  deploy:
+    kubectl:
+      manifests:
+      - k8s-minikube.yaml
+      - k8s-postgres.yaml
+      - k8s-hive.yaml      

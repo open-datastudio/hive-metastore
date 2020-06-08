@@ -1,0 +1,59 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: postgres-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: postgres
+  template:
+    metadata:
+      labels:
+        app: postgres
+    spec:
+      securityContext:
+        runAsUser: 999
+      containers:
+      - name: postgres
+        image: postgres:12.3
+        env:
+        - name: POSTGRES_USER
+          value: hive
+        - name: POSTGRES_PASSWORD
+          value: hive
+        - name: POSTGRES_DB
+          value: hive
+        - name: PGDATA
+          value: /var/lib/postgresql/data/pgdata
+        volumeMounts:
+          - name: db-volume
+            mountPath: /var/lib/postgresql/data
+      volumes:
+        - name: db-volume
+          persistentVolumeClaim:
+            claimName: db-pvc
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: db-pvc
+  annotations:
+    storage.staroid.com/scope: Instance
+spec:
+  accessModes:
+    - ReadWriteMany
+  volumeMode: Filesystem
+  resources:
+    requests:
+      storage: 1Gi
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: postgres-service
+spec:
+  ports:
+  - port: 5432
+  selector:
+    app: postgres
