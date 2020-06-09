@@ -6,6 +6,10 @@ build:
     context: .
     docker:
       dockerfile: Dockerfile
+  - image: postgres
+    context: .
+    docker:
+      dockerfile: Dockerfile_postgres
 deploy:
   kubectl:
     manifests:

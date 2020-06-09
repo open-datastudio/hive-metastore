@@ -16,7 +16,7 @@ spec:
         runAsUser: 999
       containers:
       - name: postgres
-        image: postgres:12.3
+        image: postgres
         env:
         - name: POSTGRES_USER
           value: hive
