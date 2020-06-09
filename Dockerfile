@@ -1,7 +1,7 @@
 FROM ubuntu:18.04
 
 RUN apt-get -y update && \
-    apt-get install -y curl openjdk-8-jre-headless libpostgresql-jdbc-java && \
+    apt-get install -y curl openjdk-8-jre-headless mysql-client libpostgresql-jdbc-java && \
     rm -rf /var/lib/apt/lists/*
 
 WORKDIR /opt

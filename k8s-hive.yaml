@@ -12,23 +12,23 @@ spec:
       labels:
         app: hive-metastore
     spec:
-#      initContainers:
-#      - name: db-user-create
-#        image: mariadb:10.5.3
-#        command: ["sh", "-c", "/initscript/init-db-user.sh"]
-#        volumeMounts:
-#        - name: init-db-user-volume
-#          mountPath: /initscript
+      initContainers:
+      - name: db-schema-init
+        image: hive
+        command: ["sh", "-c", "/initscript/init-schema.sh"]
+        volumeMounts:
+        - name: init-db-volume
+          mountPath: /initscript
       containers:
       - name: hive-metastore
         image: hive
         command: ["bin/hive"]
         args: ["--service", "metastore"]
-#      volumes:
-#      - name: init-db-user-volume
-#        secret:
-#          secretName: init-db-user
-#          defaultMode: 0700
+      volumes:
+      - name: init-db-volume
+        secret:
+          secretName: init-db
+          defaultMode: 0755
 ---
 kind: Service
 apiVersion: v1
@@ -44,10 +44,38 @@ spec:
 kind: Secret
 apiVersion: v1
 metadata:
-  name: init-db-user
+  name: init-db
 stringData:
+  init-schema.sh: |
+    #!/bin/bash
+    HIVE_USER=hive
+    HIVE_PW=hive
+    DB_HOST=mariadb-service
+
+    # db may take some time to spin up. wait for connection established
+    COUNT=100
+    while [ $COUNT -gt 0 ]; do
+      echo "" | mysql -u${HIVE_USER} -p${HIVE_PW} -h $DB_HOST
+      if [ $? -eq 0 ]; then
+        break
+      fi
+      sleep 3
+      let "COUNT-=1"
+    done
+
+    if [ $COUNT -eq 0 ]; then
+      echo "mysql connection failed"
+      exit 1
+    fi
+
+    echo "show tables;" | mysql -u${HIVE_USER} -p${HIVE_PW} -h $DB_HOST hive | grep VERSION
+    if [ $? -ne 0 ]; then
+      $HIVE_HOME/bin/schematool -initSchema -dbType mysql
+    else
+      echo "hive schema already initialized"
+    fi
   init-db-user.sh: |
-    #!/bin/bas
+    #!/bin/bash
 
     HIVE_USER=hive
     HIVE_PW=hive
