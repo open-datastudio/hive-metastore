@@ -26,9 +26,11 @@ spec:
           value: hive
         - name: PGDATA
           value: /var/lib/postgresql/data/pgdata
-        #volumeMounts:
-        #  - name: db-volume
-        #    mountPath: /var/lib/postgresql/data
+        - name: POSTGRES_INITDB_ARGS
+          value: "--no-sync"
+        volumeMounts:
+          - name: db-volume
+            mountPath: /var/lib/postgresql/data
       volumes:
         - name: db-volume
           persistentVolumeClaim:
