@@ -1,0 +1,59 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mariadb-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mariadb
+  template:
+    metadata:
+      labels:
+        app: mariadb
+    spec:
+      securityContext:
+        runAsUser: 999
+      containers:
+      - name: mariadb
+        image: mariadb:10.4.13
+        env:
+        - name: MYSQL_ROOT_PASSWORD
+          value: hive
+        - name: MYSQL_DATABASE
+          value: hive
+        - name: MYSQL_USER
+          value: hive
+        - name: MYSQL_PASSWORD
+          value: hive
+        volumeMounts:
+          - name: db-volume
+            mountPath: /var/lib/mysql
+      volumes:
+        - name: db-volume
+          persistentVolumeClaim:
+            claimName: db-pvc
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: db-pvc
+  annotations:
+    storage.staroid.com/scope: Instance
+spec:
+  accessModes:
+    - ReadWriteMany
+  volumeMode: Filesystem
+  resources:
+    requests:
+      storage: 1Gi
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: mariadb-service
+spec:
+  ports:
+  - port: 3306
+  selector:
+    app: mariadb
