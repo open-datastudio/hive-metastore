@@ -11,6 +11,7 @@ spec:
     metadata:
       labels:
         app: mariadb
+        pod.staroid.com/isolation: dedicated
     spec:
       securityContext:
         runAsUser: 999

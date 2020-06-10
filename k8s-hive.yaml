@@ -52,14 +52,16 @@ stringData:
     HIVE_PW=hive
     DB_HOST=mariadb-service
 
+    echo "Wait for the db start up..."
+
     # db may take some time to spin up. wait for connection established
     COUNT=100
     while [ $COUNT -gt 0 ]; do
-      echo "" | mysql -u${HIVE_USER} -p${HIVE_PW} -h $DB_HOST
+      echo "" | mysql -u${HIVE_USER} -p${HIVE_PW} -h $DB_HOST 2> /dev/null
       if [ $? -eq 0 ]; then
         break
       fi
-      sleep 3
+      sleep 6
       let "COUNT-=1"
     done
 
