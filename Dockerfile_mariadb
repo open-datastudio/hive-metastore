@@ -1,0 +1,10 @@
+FROM mariadb:10.4.13
+
+# Patch docker_temp_server_start() to make it wait longer.
+# nfs based file system takes much longer on start
+RUN sed -i 's/sleep 1/sleep 10/g' /usr/local/bin/docker-entrypoint.sh
+
+ENTRYPOINT ["docker-entrypoint.sh"]
+
+EXPOSE 3306
+CMD ["mysqld"]

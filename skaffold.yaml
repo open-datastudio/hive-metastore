@@ -6,6 +6,10 @@ build:
     context: .
     docker:
       dockerfile: Dockerfile
+  - image: mariadb
+    context: .
+    docker:
+      dockerfile: Dockerfile_mariadb
 deploy:
   kubectl:
     manifests:
