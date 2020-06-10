@@ -17,7 +17,7 @@ spec:
         runAsUser: 999
       containers:
       - name: mariadb
-        image: mariadb:10.4.13
+        image: mariadb
         env:
         - name: MYSQL_ROOT_PASSWORD
           value: hive
@@ -27,13 +27,31 @@ spec:
           value: hive
         - name: MYSQL_PASSWORD
           value: hive
+        - name: MYSQL_INITDB_SKIP_TZINFO
+          value: "true"
         volumeMounts:
           - name: db-volume
             mountPath: /var/lib/mysql
+          - name: mariadb-conf-volume
+            mountPath: /etc/mysql/mariadb.conf.d
       volumes:
         - name: db-volume
           persistentVolumeClaim:
             claimName: db-pvc
+        - name: mariadb-conf-volume
+          configMap:
+            name: mariadb-conf
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mariadb-conf
+data:
+  staroid.cnf: |
+    [mysqld]
+    # minimum value is 4M
+    innodb_log_file_size=4M
+    # innodb_temp_data_file_path=ibtmp1:1M:autoextend:max:500M
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
@@ -58,3 +76,4 @@ spec:
   - port: 3306
   selector:
     app: mariadb
+#    https://dev.mysql.com/doc/refman/5.7/en/innodb-temporary-tablespace.html
