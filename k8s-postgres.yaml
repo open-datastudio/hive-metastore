@@ -11,12 +11,14 @@ spec:
     metadata:
       labels:
         app: postgres
+        pod.staroid.com/isolation: dedicated
     spec:
       securityContext:
         runAsUser: 999
+        fsGroup: 999
       containers:
       - name: postgres
-        image: postgres
+        image: postgres:12.3
         env:
         - name: POSTGRES_USER
           value: hive
@@ -25,7 +27,7 @@ spec:
         - name: POSTGRES_DB
           value: hive
         - name: PGDATA
-          value: /var/lib/postgresql/data
+          value: /var/lib/postgresql/data/pgdata
         volumeMounts:
           - name: db-volume
             mountPath: /var/lib/postgresql/data

@@ -51,8 +51,7 @@ stringData:
     HIVE_USER=hive
     DB_HOST=postgres-service
     
-
-    COUNT=20
+    COUNT=180
     while [ $COUNT -gt 0 ]; do
       PGPASSWORD=hive psql -h $DB_HOST -U $HIVE_USER -d hive -c "\dt" > /dev/null
       if [ $? -eq 0 ]; then
@@ -63,7 +62,7 @@ stringData:
       let "COUNT-=1"
     done
     if [ $COUNT -eq 0 ]; then
-      echo "mysql connection failed"
+      echo "db connection failed"
       exit 1
     fi
 
