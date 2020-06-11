@@ -1,3 +1,14 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: hive-metastore-info
+  labels:
+    # see https://docs.staroid.com/project/dependency.html
+    dependency.staroid.com/export: hive-metastore-info
+data:
+  NAMESPACE: default
+  SERVICE: hive-metastore-service
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:

@@ -15,7 +15,7 @@ spec:
     spec:
       securityContext:
         runAsUser: 999
-        fsGroup: 999
+        fsGroup: 999 # fyi, 'sandboxed' does not support fsGroup
       containers:
       - name: postgres
         image: postgres:12.3
