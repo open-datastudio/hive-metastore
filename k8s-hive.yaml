@@ -49,48 +49,16 @@ stringData:
   init-schema.sh: |
     #!/bin/bash
     HIVE_USER=hive
-    HIVE_PW=hive
-    DB_HOST=mariadb-service
+    DB_HOST=postgres-service
+    
 
-    echo "Wait for the db start up..."
-
-    # db may take some time to spin up. wait for connection established
-    COUNT=100
-    while [ $COUNT -gt 0 ]; do
-      echo "" | mysql -u${HIVE_USER} -p${HIVE_PW} -h $DB_HOST 2> /dev/null
-      if [ $? -eq 0 ]; then
-        break
-      fi
-      sleep 6
-      let "COUNT-=1"
-    done
-
-    if [ $COUNT -eq 0 ]; then
-      echo "mysql connection failed"
-      exit 1
-    fi
-
-    echo "show tables;" | mysql -u${HIVE_USER} -p${HIVE_PW} -h $DB_HOST hive | grep VERSION
-    if [ $? -ne 0 ]; then
-      $HIVE_HOME/bin/schematool -initSchema -dbType mysql
-    else
-      echo "hive schema already initialized"
-    fi
-  init-db-user.sh: |
-    #!/bin/bash
-
-    HIVE_USER=hive
-    HIVE_PW=hive
-    ROOT_PW=rootpw
-    DB_HOST=mariadb-service
-
-    # db may take some time to spin up. wait for connection established
     COUNT=20
     while [ $COUNT -gt 0 ]; do
-      echo "" | mysql -root -p${ROOT_PW} -h $DB_HOST
+      PGPASSWORD=hive psql -h $DB_HOST -U $HIVE_USER -d hive -c "\dt" > /dev/null
       if [ $? -eq 0 ]; then
         break
       fi
+
       sleep 3
       let "COUNT-=1"
     done
@@ -99,20 +67,7 @@ stringData:
       exit 1
     fi
 
-    # check if user already exists
-    echo "USE mysql; \
-          SELECT User FROM user WHERE User='$HIVE_USER';" \
-          | mysql -uroot -p${ROOT_PW} -h $DB_HOST | grep $HIVE_USER > /dev/null
-    if [ $? -eq 0 ]; then
-      # hive user already exists
-      exit 0
+    PGPASSWORD=hive psql -h $DB_HOST -U $HIVE_USER -d hive -c "\dt" | grep ROLES > /dev/null
+    if [ $? -ne 0 ]; then
+      $HIVE_HOME/bin/schematool -initSchema -dbType postgres
     fi
-
-    # create user and database
-    echo "USE mysql; \
-          CREATE USER 'hive'@'%' IDENTIFIED BY '$HIVE_PW'; \
-          GRANT ALL PRIVILEGES ON hive.* TO 'hive'@'%'; \
-          CREATE DATABASE hive; \
-          FLUSH PRIVILEGES;" \
-          | mysql -uroot -p${ROOT_PW} -h $DB_HOST
-         

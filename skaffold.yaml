@@ -6,14 +6,10 @@ build:
     context: .
     docker:
       dockerfile: Dockerfile
-  - image: mariadb
-    context: .
-    docker:
-      dockerfile: Dockerfile_mariadb
 deploy:
   kubectl:
     manifests:
-    - k8s-mariadb.yaml
+    - k8s-postgres.yaml
     - k8s-hive.yaml
 profiles:
 - name: minikube
@@ -21,5 +17,5 @@ profiles:
     kubectl:
       manifests:
       - k8s-minikube.yaml
-      - k8s-mariadb.yaml
+      - k8s-postgres.yaml
       - k8s-hive.yaml      

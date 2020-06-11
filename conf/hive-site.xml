@@ -4,7 +4,7 @@
     <property>
         <description>the URL of the Postgres database</description>
         <name>javax.jdo.option.ConnectionURL</name>
-        <value>jdbc:mysql://mariadb-service/hive</value>
+        <value>jdbc:postgresql://postgres-service/hive</value>
     </property>
     <property>
         <name>javax.jdo.option.ConnectionUserName</name>
@@ -16,7 +16,7 @@
     </property>
     <property>
         <name>javax.jdo.option.ConnectionDriverName</name>
-        <value>org.mariadb.jdbc.Driver</value>
+        <value>org.postgresql.Driver</value>
     </property>
     <property>
         <name>hive.metastore.schema.verification</name>

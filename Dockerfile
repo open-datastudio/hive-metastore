@@ -1,7 +1,7 @@
 FROM ubuntu:18.04
 
 RUN apt-get -y update && \
-    apt-get install -y curl openjdk-8-jre-headless mysql-client libpostgresql-jdbc-java && \
+    apt-get install -y curl openjdk-8-jre-headless postgresql-client libpostgresql-jdbc-java && \
     rm -rf /var/lib/apt/lists/*
 
 WORKDIR /opt
@@ -16,7 +16,6 @@ RUN curl -L https://www-us.apache.org/dist/hive/hive-3.1.2/apache-hive-3.1.2-bin
     curl -L https://www-us.apache.org/dist/hadoop/common/hadoop-3.1.3/hadoop-3.1.3.tar.gz | tar zxf - && \
     rm -f ${HIVE_HOME}/lib/guava-19.0.jar && \
     cp ${HADOOP_HOME}/share/hadoop/common/lib/guava-27.0-jre.jar ${HIVE_HOME}/lib/ && \
-    curl -L https://downloads.mariadb.com/Connectors/java/latest/mariadb-java-client-2.3.0.jar > ${HIVE_HOME}/lib/mariadb-java-client-2.3.0.jar && \
     ln -s /usr/share/java/postgresql-jdbc4.jar ${HIVE_HOME}/lib/postgresql-jdbc4.jar
 
 COPY conf/hive-site.xml ${HIVE_HOME}/conf
