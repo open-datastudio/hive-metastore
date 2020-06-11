@@ -1,9 +1,0 @@
-FROM postgres:12.3
-
-RUN apt-get update && apt-get install -y procps net-tools netcat && \
-    rm -rf /var/lib/apt/lists/*
-
-ENTRYPOINT ["docker-entrypoint.sh"]
-
-EXPOSE 5432
-CMD ["postgres"]
