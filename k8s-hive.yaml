@@ -6,8 +6,8 @@ metadata:
     # see https://docs.staroid.com/project/dependency.html
     dependency.staroid.com/export: hive-metastore-info
 data:
-  NAMESPACE: default
-  SERVICE: hive-metastore-service
+  HIVE_METASTORE_NAMESPACE: "{{.Namespace}}"
+  HIVE_METASTORE_SERVICE: hive-metastore-service
 ---
 apiVersion: apps/v1
 kind: Deployment
