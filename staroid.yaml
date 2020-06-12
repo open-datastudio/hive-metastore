@@ -5,4 +5,4 @@ ingress:
 - serviceName: hive-metastore
   port: 9083
 deploy:
-  implement: open-datastudio/hive-metastore
+  implements: open-datastudio/hive-metastore
