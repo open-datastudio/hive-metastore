@@ -1,8 +1,5 @@
 apiVersion: beta/v1
 build:
   skaffold: {}
-ingress:
-- serviceName: hive-metastore
-  port: 9083
 deploy:
   implements: open-datastudio/hive-metastore
